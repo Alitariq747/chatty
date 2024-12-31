@@ -70,14 +70,14 @@ function RootLayoutNav() {
 			<ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
 				<AuthProvider>
 					<QueryClientProvider client={queryClient}>
-					<Stack>
-						<Stack.Screen
-							name="(user)"
-							options={{ headerShown: false }}
-						/>
-						
-						</Stack>
-						</QueryClientProvider>
+							<Stack screenOptions={{headerShown: false}}>	
+								<Stack.Screen
+									name="(user)"
+									options={{ headerShown: false }}
+							/>
+							<Stack.Screen name='(auth)' />
+							</Stack>
+					</QueryClientProvider>
 				</AuthProvider>
 			</ThemeProvider>
 		</GluestackUIProvider>

@@ -1,7 +1,8 @@
 import { supabase } from "@/utils/supabase";
+import { translate } from "@/utils/translate";
 
 
-export const fetchMessages = async (chatId: string, pageParam: number = 0) => {
+export const fetchMessages = async (chatId: string) => {
 	const { data, error } = await supabase
 		.from("messages")
 		.select("*")
@@ -17,8 +18,14 @@ export const fetchMessages = async (chatId: string, pageParam: number = 0) => {
 export const sendMessage = async (
 	chatId: string,
 	senderId: string,
-	text: string
+	text: string,
+	target: string,
+	source: string
 ) => {
+
+	
+	const translatedText = await translate(text, source, target);
+
 	const { data, error } = await supabase
 		.from("messages")
 		.insert([
@@ -26,6 +33,8 @@ export const sendMessage = async (
 				chat_id: chatId,
 				sender_id: senderId,
 				content: text,
+				translated_language: target,
+				translated_content: translatedText,
 			},
 		])
 		.single(); // Insert a single message and return it
@@ -34,3 +43,9 @@ export const sendMessage = async (
 
 	return data;
 };
+
+export const deleteMessage = async (id: string, senderId: string) => {
+	const { error } = await supabase.from("messages").delete().eq("id", id);
+
+	if (error) throw error;
+}

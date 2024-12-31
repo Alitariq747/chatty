@@ -8,38 +8,47 @@ import {
 	TouchableWithoutFeedback,
 	Keyboard,
 	TextInput,
+	Pressable,
+	Alert,
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import { Button, ButtonText } from "./ui/button";
-import { useFetchMessages, useSendMessage } from "@/hooks/useMessages";
+import {
+	useDeleteMessage,
+	useFetchMessages,
+	useSendMessage,
+} from "@/hooks/useMessages";
 import { useAuth } from "@/providers/AuthProvider";
 import useRealtimeMessages from "@/hooks/useRealTimeMessages";
+import { useProfile } from "@/hooks/useProfiles";
 
 type MessagesProps = {
-    chatId: string;
-    friendId: string;
+	chatId: string;
+	friendId: string;
+	friendLang: string;
 };
 
-const Messages = ({ chatId }: MessagesProps) => {
-    const flatListRef = useRef<FlatList>(null);
+const Messages = ({ chatId, friendLang }: MessagesProps) => {
+	const flatListRef = useRef<FlatList>(null);
 
-    useRealtimeMessages(chatId);
+	useRealtimeMessages(chatId);
 
-    const {
-			data: messages = [],
-			isLoading,
-			isError,
-		} = useFetchMessages(chatId);
-    
-    	useEffect(() => {
-				flatListRef.current?.scrollToEnd({ animated: true });
-			}, [messages]);
+	const { data: messages = [], isLoading, isError } = useFetchMessages(chatId);
 
-	const { session } = useAuth()
+	useEffect(() => {
+		flatListRef.current?.scrollToEnd({ animated: true });
+	}, [messages]);
+
+	const { session } = useAuth();
+
+	const { data: profile } = useProfile(session?.user.id ?? "");
 
 	const [message, setMessage] = useState(""); // State for input field
 
-  const { mutate: sendMessage, isPending: sendingMessage } = useSendMessage();
+	const { mutate: sendMessage, isPending: sendingMessage } = useSendMessage();
+
+	const { mutate: deleteMessage, isPending: deletingMessage } =
+		useDeleteMessage();
 
 	if (isLoading) {
 		return (
@@ -55,15 +64,43 @@ const Messages = ({ chatId }: MessagesProps) => {
 		return <Text>Error fetching messages</Text>;
 	}
 
-    const handleSendMessage = () => {
-            if (message.trim() === "" || !session) return;
+	const handleSendMessage = () => {
+		if (message.trim() === "" || !session) return;
 
-        sendMessage({
-            chatId,
-            senderId: session.user.id,
-            text: message,
-        })
+		sendMessage({
+			chatId,
+			senderId: session.user.id,
+			text: message,
+			target: friendLang,
+			source: profile?.pref_lang,
+		});
 		setMessage("");
+	};
+
+	const handleDelete = (id: string, senderId: string) => {
+		if (senderId !== session?.user.id) {
+			Alert.alert("Delete Message", "You can only delete your own messages");
+			return;
+		}
+		Alert.alert(
+			"Delete Message",
+			"Are you sure you want to delete this message?",
+			[
+				{
+					text: "Cancel",
+					style: "cancel",
+				},
+				{
+					text: "Delete",
+					style: "destructive",
+					onPress: () => {
+						if (session?.user.id) {
+							deleteMessage({ id, senderId: session.user.id });
+						}
+					},
+				},
+			]
+		);
 	};
 
 	return (
@@ -81,17 +118,31 @@ const Messages = ({ chatId }: MessagesProps) => {
 						keyExtractor={(item) => item.id}
 						contentContainerStyle={{ padding: 16 }}
 						renderItem={({ item }) => (
-							<View
+							<Pressable
+								onPress={() => handleDelete(item.id, item.sender_id)}
 								style={{
-									backgroundColor: item.sender_id === session?.user.id ?  "#eee6ee" :"#260a69",
+									backgroundColor:
+										item.sender_id === session?.user.id ? "#eee6ee" : "#260a69",
 									padding: 10,
 									borderRadius: 8,
 									marginVertical: 5,
-									alignSelf: item.sender_id === session?.user.id ? "flex-end" : "flex-start",
+									alignSelf:
+										item.sender_id === session?.user.id
+											? "flex-end"
+											: "flex-start",
 								}}
 							>
-								<Text style={{ color: item.sender_id === session?.user.id ? "purple" : "white" }}>{item.content}</Text>
-							</View>
+								<Text
+									style={{
+										color:
+											item.sender_id === session?.user.id ? "purple" : "white",
+									}}
+								>
+									{item.sender_id === session?.user.id
+										? item.content
+										: item.translated_content}
+								</Text>
+							</Pressable>
 						)}
 						onContentSizeChange={() =>
 							flatListRef.current?.scrollToEnd({ animated: true })

@@ -1,29 +1,36 @@
 import { ActivityIndicator } from "react-native";
 import { useAuth } from "@/providers/AuthProvider";
-import { Redirect } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 import SignUp from "@/components/SignUp";
 
 const OnboardingScreen = () => {
 
-    const {session, loading, profile} = useAuth()
+    const {session, loading} = useAuth()
 
 
 	if (loading) {
-		return <ActivityIndicator className="flex-1 justify-center" size={34}/>;
+		return (
+			<>
+				<ActivityIndicator
+					className="flex-1 justify-center items-center"
+					size={"large"}
+				/>
+			</>
+		);
+		
+	
+	}
+
+	if (!session) {
+		return <Redirect href="/(auth)" />;
 	}
 
 	if (session) {
-		return <Redirect href={"/(user)"} />;
-	}
-
-
 		return (
-			<>
-				<SignUp />
-			</>
+			<Redirect href="/(user)" />
 		);
-
+	}
 };
 
 export default OnboardingScreen;

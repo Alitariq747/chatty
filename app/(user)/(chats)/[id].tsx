@@ -32,6 +32,8 @@ const SingleChatScreen = () => {
 
 	const { data: friendProfile, isLoading: friendLoading } = useProfile(user2Id);
 
+	const targetLanguage = friendProfile?.pref_lang;
+
 	if (loading) {
 		return (
 			<ActivityIndicator
@@ -45,7 +47,7 @@ const SingleChatScreen = () => {
 	return (
 		<>
 			<Stack.Screen options={{ title: friendProfile ? friendProfile.full_name : 'New Chat' }} />
-			{chat && <Messages chatId={chat.id} friendId={ user2Id} />}
+			{chat && <Messages chatId={chat.id} friendId={user2Id} friendLang={ targetLanguage} />}
 		</>
 	);
 };

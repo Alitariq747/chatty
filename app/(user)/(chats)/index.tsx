@@ -64,15 +64,19 @@ const AllMessages = () => {
 				contentContainerStyle={{ flexGrow: 1, gap: 5, paddingHorizontal: 0 }}
 				data={chats}
 				renderItem={({ item }) => (
-					<Link href={`/(user)/(chats)/${item.friend.id}`} asChild>
+					<Link
+						href={`/(user)/(chats)/${item.friend.id}`}
+						asChild
+					>
 						<Pressable className="flex-row gap-4 p-3 border-b border-purple-950 mx-0 rounded-md bg-white">
 							{/* Add Image from friend.avatar_url */}
-							<Text>{item.friend.username}</Text>
+							<Text>{item.friend.username.toUpperCase()}</Text>
 						</Pressable>
 					</Link>
 				)}
 				keyExtractor={(item) => item.id}
 			/>
+			
 		</View>
 	);
 };
