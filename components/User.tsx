@@ -1,8 +1,13 @@
 import { View, Text, Image, Pressable } from 'react-native'
 import React from 'react'
 import { useRouter } from 'expo-router'
+import { Profile } from '@/types/types'
 
-const User = ({ item }: any) => {
+type UserProps = {
+	item: Profile
+}
+
+const User = ({ item }: UserProps) => {
 
     const router = useRouter()
     
@@ -12,25 +17,34 @@ const User = ({ item }: any) => {
     }
 
     return (
-			
-				<Pressable onPress={handleChat}>
-					<View className="flex-row gap-4 p-3 border-b border-gray-300 mx-3 rounded-md bg-white">
-						{/* Image Avatar */}
+			<Pressable onPress={handleChat}>
+				<View className="flex-row gap-4 p-3 border-b border-gray-300 mx-3 rounded-md bg-white">
+					{/* Image Avatar */}
+
+					{item.avatar_url ? (
 						<Image
-							source={require("../assets/images/intro.jpeg")}
+							source={{ uri: item.avatar_url }}
 							style={{ width: 40, height: 40 }}
 							className="rounded-3xl"
 						/>
-						<View>
-							<Text className="text-base font-semibold text-purple-950">
-								{item.full_name}
-							</Text>
-							<Text className="text-sm font-normal text-purple-950">
-								Add status
-							</Text>
-						</View>
+					) : (
+						<Image
+							source={require("../assets/images/default-user-image.jpg")}
+							style={{ width: 40, height: 40 }}
+							className="rounded-3xl"
+						/>
+					)}
+
+					<View>
+						<Text className="text-base font-semibold text-purple-950">
+							{item.full_name}
+						</Text>
+						<Text className="text-sm font-normal text-purple-950">
+							Add status
+						</Text>
 					</View>
-				</Pressable>
+				</View>
+			</Pressable>
 		);
 }
 

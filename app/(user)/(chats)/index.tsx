@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator, FlatList, Pressable } from "react-native";
+import { View, Text, ActivityIndicator, FlatList, Pressable, Image } from "react-native";
 import React from "react";
 import { Link, Stack } from "expo-router";
 import { Input, InputField } from "@/components/ui/input";
@@ -65,18 +65,30 @@ const AllMessages = () => {
 				data={chats}
 				renderItem={({ item }) => (
 					<Link
-						href={`/(user)/(chats)/${item.friend.id}`}
+						href={`/(user)/(chats)/${item.friend?.id}`}
 						asChild
 					>
-						<Pressable className="flex-row gap-4 p-3 border-b border-purple-950 mx-0 rounded-md bg-white">
+						<Pressable className="flex-row gap-4 p-3 border-b border-purple-950 mx-0 rounded-md bg-white items-center">
 							{/* Add Image from friend.avatar_url */}
-							<Text>{item.friend.username.toUpperCase()}</Text>
+							{item.friend?.avatar_url ? (
+								<Image
+									source={{ uri: item.friend.avatar_url }}
+									style={{ width: 40, height: 40 }}
+									className="rounded-3xl"
+								/>
+							) : (
+								<Image
+									source={require("../../../assets/images/default-user-image.jpg")}
+									style={{ width: 40, height: 40 }}
+									className="rounded-3xl"
+								/>
+							)}
+							<Text>{item.friend?.username || "Unknown User"}</Text>
 						</Pressable>
 					</Link>
 				)}
-				keyExtractor={(item) => item.id}
+				keyExtractor={(item) => item.id.toString()}
 			/>
-			
 		</View>
 	);
 };

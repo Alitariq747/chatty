@@ -54,12 +54,7 @@ export default function ModalScreen() {
 					)}
 				/>
 			</View>
-			<ButtonGroup>
-				<Button onPress={async () => await supabase.auth.signOut()}>
-					<ButtonText>Logout</ButtonText>
-					<ButtonIcon />
-				</Button>
-			</ButtonGroup>
+			
 		</View>
 	);
 }

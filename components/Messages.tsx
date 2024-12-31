@@ -72,7 +72,7 @@ const Messages = ({ chatId, friendLang }: MessagesProps) => {
 			senderId: session.user.id,
 			text: message,
 			target: friendLang,
-			source: profile?.pref_lang,
+			source: profile?.pref_lang ?? "",
 		});
 		setMessage("");
 	};

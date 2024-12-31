@@ -20,7 +20,7 @@ export const sendMessage = async (
 	senderId: string,
 	text: string,
 	target: string,
-	source: string
+	source: string | 'en'
 ) => {
 
 	
@@ -30,7 +30,7 @@ export const sendMessage = async (
 		.from("messages")
 		.insert([
 			{
-				chat_id: chatId,
+				chat_id: Number(chatId),
 				sender_id: senderId,
 				content: text,
 				translated_language: target,
