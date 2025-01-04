@@ -5,6 +5,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { fetchChatWithFriend } from "@/api/chats";
 import { useProfile } from "@/hooks/useProfiles";
 import Messages from "@/components/Messages";
+import { Chat } from "@/types/types";
 
 const SingleChatScreen = () => {
 	const { id } = useLocalSearchParams();
@@ -17,14 +18,16 @@ const SingleChatScreen = () => {
 		return null;
 	}
 
-	const [chat, setChat] = useState<{ id: string } | null>(null);
+	const [chat, setChat] = useState<Chat | null>(null);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		const getChat = async () => {
 			setLoading(true);
 			const data = await fetchChatWithFriend(session.user.id, user2Id);
-			setChat(data);
+			if (data) {
+				setChat(data);
+			}
 			setLoading(false);
 		};
 		getChat();
@@ -33,6 +36,7 @@ const SingleChatScreen = () => {
 	const { data: friendProfile, isLoading: friendLoading } = useProfile(user2Id);
 
 	const targetLanguage = friendProfile?.pref_lang;
+
 
 	if (loading) {
 		return (
@@ -46,8 +50,8 @@ const SingleChatScreen = () => {
 
 	return (
 		<>
-			<Stack.Screen options={{ title: friendProfile ? friendProfile.full_name : 'New Chat' }} />
-			{chat && <Messages chatId={chat.id} friendId={user2Id} friendLang={ targetLanguage} />}
+			<Stack.Screen options={{ title: friendProfile?.full_name ?? 'New Chat' }} />
+			{chat && <Messages chatId={chat.id.toString()} friendId={user2Id} friendLang={targetLanguage ?? 'en'} />}
 		</>
 	);
 };

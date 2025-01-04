@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/providers/AuthProvider";
 import useRealtimeMessages from "@/hooks/useRealTimeMessages";
 import { useProfile } from "@/hooks/useProfiles";
+import useRealtimeFriendProfile from "@/hooks/useRealTimeFriendProfile";
 
 type MessagesProps = {
 	chatId: string;
@@ -28,12 +29,24 @@ type MessagesProps = {
 	friendLang: string;
 };
 
-const Messages = ({ chatId, friendLang }: MessagesProps) => {
+const Messages = ({ chatId, friendId }: MessagesProps) => {
 	const flatListRef = useRef<FlatList>(null);
 
 	useRealtimeMessages(chatId);
+	useRealtimeFriendProfile(friendId);
 
 	const { data: messages = [], isLoading, isError } = useFetchMessages(chatId);
+
+	const { data: friendProfile } = useProfile(friendId);
+
+	const [friendLang, setFriendLang] = useState(friendProfile?.pref_lang)
+
+	useEffect(() => {
+		// Update the preferred language whenever profile changes
+		if (friendProfile?.pref_lang) {
+			setFriendLang(friendProfile.pref_lang);
+		}
+	}, [friendProfile]);
 
 	useEffect(() => {
 		flatListRef.current?.scrollToEnd({ animated: true });
@@ -71,7 +84,7 @@ const Messages = ({ chatId, friendLang }: MessagesProps) => {
 			chatId,
 			senderId: session.user.id,
 			text: message,
-			target: friendLang,
+			target: friendLang ?? "",
 			source: profile?.pref_lang ?? "",
 		});
 		setMessage("");

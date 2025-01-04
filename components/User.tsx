@@ -40,7 +40,7 @@ const User = ({ item }: UserProps) => {
 							{item.full_name}
 						</Text>
 						<Text className="text-sm font-normal text-purple-950">
-							Add status
+							{item.status}
 						</Text>
 					</View>
 				</View>

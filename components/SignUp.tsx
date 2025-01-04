@@ -26,51 +26,65 @@ const SignUp = () => {
 
 	// States
 	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [isLoading, setIsLoading] = useState(false);
+	const [otp, setOtp] = useState("");
+	const [isSigningUp, setIsSigningUp] = useState(false);
+	const [isLoggingIn, setIsLoggingIn] = useState(false);
 
 	// Signup Handler
-	const handleSignUp = async () => {
-		setIsLoading(true);
-		const { data, error } = await supabase.auth.signUp({
+	const handleSendOtp = async () => {
+		setIsSigningUp(true);
+		const { data, error } = await supabase.auth.signInWithOtp({
 			email,
-			password,
+			
 		});
+
 		if (error) {
-			setIsLoading(false);
+			setIsSigningUp(false);
+			console.log(error);
+
 			Alert.alert(
-				"Sign Up Failed!",
-				"Please recheck your credentials and try again."
+				"Registration Failed!",
+				"Please recheck your email and try again."
 			);
-			throw new Error(error.message);
+			return;
 		}
-		setIsLoading(false);
-		router.push("/(user)");
+		if (error == null && data.session == null && data.user == null) {
+			setIsSigningUp(false);
+
+			Alert.alert(
+				"Confirmation Required",
+				"Enter received otp below to log in"
+			);
+		}
 	};
 
 	// Login Handler
-	const handleLogin = async () => {
-		setIsLoading(true);
-		const { data, error } = await supabase.auth.signInWithPassword({
+	const handleVerifyOtp = async () => {
+		setIsLoggingIn(true);
+		const {
+			data: { session },
+			error,
+		} = await supabase.auth.verifyOtp({
 			email,
-			password,
+			token: otp,
+			type: "email",
 		});
+
 		if (error) {
-			setIsLoading(false);
-			Alert.alert(
-				"Login Failed!",
-				"Please recheck your credentials and try again."
-			);
-			throw new Error(error.message);
+			setIsLoggingIn(false);
+			Alert.alert("Login Failed!", "Please recheck your otp and try again.");
+			return;
 		}
-		setIsLoading(false);
-		router.push("/(user)");
+		if (session) {
+			setIsLoggingIn(false);
+			router.push("/(user)");			
+		}
 	};
 
 	return (
 		<KeyboardAvoidingView
 			style={{ flex: 1 }}
-			behavior={Platform.OS === "ios" ? "padding" : "height"} // Adjust keyboard offset
+			behavior={Platform.OS === "ios" ? "padding" : "height"}
 		>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<ImageBackground
@@ -78,7 +92,9 @@ const SignUp = () => {
 					style={{ flex: 1 }}
 					imageStyle={{ resizeMode: "cover" }}
 				>
-					<View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 14 }}>
+					<View
+						style={{ flex: 1, padding: 16, justifyContent: "center", gap: 14 }}
+					>
 						{/* Welcome Text */}
 						<Text className="text-4xl font-bold text-center text-purple-950">
 							Welcome to Chaty!
@@ -93,8 +109,8 @@ const SignUp = () => {
 						{/* Email Input */}
 						<Input
 							variant="underlined"
-							size="md"
-							isDisabled={false}
+							size="lg"
+							isDisabled={isLoggingIn || isSigningUp}
 							isInvalid={false}
 							isReadOnly={false}
 						>
@@ -104,51 +120,50 @@ const SignUp = () => {
 								value={email}
 								onChangeText={setEmail}
 								autoCapitalize="none"
-								keyboardType="email-address"
+								keyboardType="default"
 							/>
 						</Input>
 
 						{/* Password Input */}
 						<Input
 							variant="underlined"
-							size="md"
-							isDisabled={false}
+							size="lg"
+							isDisabled={isLoggingIn || isSigningUp}
 							isInvalid={false}
 							isReadOnly={false}
 						>
 							<InputField
-								placeholder="Enter Password here..."
+								placeholder="Enter Otp here..."
 								className="text-purple-950"
-								value={password}
+								value={otp}
 								type="password"
-								onChangeText={setPassword}
+								onChangeText={setOtp}
 								autoCapitalize="none"
-								secureTextEntry
 							/>
 						</Input>
 
 						{/* Button Group */}
 						<ButtonGroup
 							className="pt-3"
-							isDisabled={isLoading}
+							isDisabled={isSigningUp || isLoggingIn}
 						>
 							<Button
 								className="bg-purple-950"
 								size="lg"
-								onPress={handleSignUp}
+								onPress={handleSendOtp}
 							>
-								<ButtonText>Get Started</ButtonText>
-								{isLoading && <ButtonSpinner />}
+								<ButtonText>Get Otp</ButtonText>
+								{isSigningUp && <ButtonSpinner />}
 								<ButtonIcon />
 							</Button>
 							<Button
 								size="lg"
-								onPress={handleLogin}
+								onPress={handleVerifyOtp}
 								variant="link"
 							>
-								<ButtonText className="text-purple-950">
-									Login Instead
-								</ButtonText>
+								<ButtonText className="text-purple-950">Verify </ButtonText>
+								{isLoggingIn && <ButtonSpinner />}
+
 								<ButtonIcon />
 							</Button>
 						</ButtonGroup>

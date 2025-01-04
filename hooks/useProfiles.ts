@@ -9,7 +9,7 @@ export const useProfiles = () => {
             const profiles = await getAllProfiles();
             return profiles;
         },
-    });
+    })
 }
 
 export const useProfile = (id: string) => {
@@ -27,6 +27,6 @@ export const useUpdateProfile = () => {
 
     return useMutation({
         mutationFn: async ({ id, updatedFields }: { id: string, updatedFields: ProfileUpdate }) => updateProfile(id, updatedFields),
-        onSuccess: (data, variables) => queryClient.invalidateQueries({queryKey: ['profiles', variables.id]})
+         onSuccess: async (_, id) => queryClient.invalidateQueries({queryKey: ['profiles', id]})
     })
 }
