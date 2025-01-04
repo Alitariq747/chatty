@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/types/database.types";
 
 export const supabase = createClient<Database>(
-	"https://osumlavjwzjxnsgsnkrj.supabase.co",
-	"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zdW1sYXZqd3pqeG5zZ3Nua3JqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2OTA2MzMsImV4cCI6MjA1MDI2NjYzM30.BiWv3HAARx5Ep6bJViz-v8fImoJwoMjIIMcW4mr0qWQ",
+	process.env.SUPABASE_URL || "",
+	process.env.SUPABASE_PUBLIC_KEY || "",
 	{
 		auth: {
 			storage: AsyncStorage as any, // Required for React Native

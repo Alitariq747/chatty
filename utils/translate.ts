@@ -12,7 +12,7 @@ export const translate = async (
 	const options = {
 		method: "POST",
 		headers: {
-			"x-rapidapi-key": "83aa78731cmsh92bec3834e1b101p1239fajsn9d59e151f583",
+			"x-rapidapi-key": process.env.RAPIDAPI_KEY || "",
 			"x-rapidapi-host": "deep-translate1.p.rapidapi.com",
 			"Content-Type": "application/json",
 		},
